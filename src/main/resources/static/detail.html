@@ -19,16 +19,18 @@
     <link href="./assets/dist/css/bootstrap.min.css" rel="stylesheet">
 
     <style>
+        .bd-placeholder-img {
+            font-size: 1.125rem;
+            text-anchor: middle;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            user-select: none;
+        }
+
         @media (min-width: 768px) {
             .bd-placeholder-img-lg {
                 font-size: 3.5rem;
             }
-        }
-
-        .custum-inner-box {
-            max-width: 49.4%;
-            min-width: 40%;
-            margin-bottom: 20px;
         }
 
         .custum-outter-box {
@@ -39,59 +41,111 @@
 
     </style>
 
-
-    <!-- Custom styles for this template -->
-    <link href="./product.css" rel="stylesheet">
     <script>
-        // 포스트를 불러와서 보여줌
         $(document).ready(function () {
-            // HTML 문서를 로드할 때마다 실행합니다.
-            getMessages();
+            getPostId()
         })
 
-        //
-        function getMessages() {
-            // 1. 기존 메모 내용을 지웁니다.
-            $('#cards-box').empty();
-            // 2. 메모 목록을 불러와서 HTML로 붙입니다.
+        function getPostId() {
+            let param = document.location.href.split("?id=")
+            let id = param[1]
+            getPostDetail(id)
+        }
+
+        function getPostDetail(id) {
             $.ajax({
                 type: 'GET',
-                url: '/api/posts',
+                url: `/api/posts/${id}`,
                 success: function (response) {
-                    for (let i = 0; i < response.length; i++) {
-                        let message = response[i];
-                        let id = message['id'];
-                        let title = message['title']
-                        let contents = message['contents'];
-                        let modifiedAt = message['modifiedAt'];
-                        addHTML(id, title, contents, modifiedAt);
-                    }
+                    let tempHtml = `<div id="${response.id}-card"
+                                         class="custum-inner-box bg-dark me-md-3 pt-3 px-3 pt-md-5 px-md-5 text-center text-white overflow-hidden">
+                                        <div style="float:right;">
+                                            <img id="${response.id}-edit" class="icon-start-edit" src="images/edit.png" alt="" onclick="editPost('${response.id}')">
+                                            <img id="${response.id}-delete" class="icon-delete" src="images/delete.png" alt="" onclick="deleteOne('${response.id}')">
+                                            <img id="${response.id}-submit" class="icon-end-edit" src="images/done.png" alt="" onclick="submitEdit('${response.id}')">
+                                        </div>
+                                        <div class="my-3 py-3">
+                                            <h2 id="${response.id}-title" class="display-5">${response.title}</h2>
+                                            <p class="lead">${response.modifiedAt}</p>
+                                        </div>
+                                        <div class="bg-light shadow-sm mx-auto text"
+                                             style="width: 80%; height: 300px; border-radius: 21px; margin-bottom: 50px">
+                                            <p id="${response.id}-contents" style="color:black;">${response.contents}</p>
+                                            <div id="${response.id}-editarea" class="edit">
+                                                <p id="${response.id}-textarea" style="color:black;">$</p>
+                                            </div>
+                                        </div>
+                                    </div>`
+                    $('#detail-post').append(tempHtml)
+                },
+                error: function () {
+                    alert("데이터를 조회하는데 실패 했습니다.")
                 }
             })
         }
 
-        // 메모 하나를 HTML로 만들어서 body 태그 내 원하는 곳에 삽입
-        function addHTML(id, title, contents, modifiedAt) {
-            let tempHTML = `<div id="${id}-card" class="custum-inner-box bg-dark me-md-3 pt-3 px-3 pt-md-5 px-md-5 text-center text-white overflow-hidden">
-                                <div class="my-3 py-3">
-                                    <h2 class="display-5"><span onclick="getPostDetail(${id})" ">${title}</span></h2>
-                                    <p class="lead">${modifiedAt}</p>
-                                </div>
-                                <div class="bg-light shadow-sm mx-auto text"
-                                     style="width: 80%; height: 300px; border-radius: 21px 21px 0 0;">
-                                    <p style="color:black;">${contents}</p>
-                                </div>
-                            </div>`
+        // 숨길 버튼을 숨기고, 나타낼 버튼을 나타냄
+        function showEdits(id) {
+            $(`#${id}-delete`).show();
+            $(`#${id}-submit`).show();
+            $(`#${id}-editarea`).show();
 
-            $('#cards-box').append(tempHTML)
+            $(`#${id}-contents`).hide();
+            $(`#${id}-edit`).hide();
         }
 
-        function getPostDetail(id) {
-            window.location.href = 'detail.html?id='+id
+        function deleteOne(id) {
+            $.ajax({
+                type: "DELETE",
+                url: `/api/posts/${id}`,
+                success: function (response) {
+                    alert('메시지 삭제에 성공하였습니다.');
+                    window.location.href = '/'
+                }
+            })
         }
 
+        function editPost(id) {
+            showEdits(id);
+            let contents = $(`#${id}-contents`).text().trim();
+            $(`#${id}-textarea`).val(contents);
+        }
 
+        function submitEdit(id) {
+            // 1. 작성 대상 메모의 username과 contents 를 확인합니다.
+            let title = $(`#${id}-title`).text().trim();
+            let contents = $(`#${id}-textarea`).val().trim();
+
+            // 2. 작성한 메모가 올바른지 isValidContents 함수를 통해 확인합니다.
+            if (isValidtitle(title) == false) {
+                return;
+            }
+            if (isValidContents(contents) == false) {
+                return;
+            }
+
+            // 3. 전달할 data JSON으로 만듭니다.
+            let data = {'username': username,'title': title, 'contents': contents};
+
+            // 4. PUT /api/memos/{id} 에 data를 전달합니다.
+            $.ajax({
+                type: "PUT",
+                url: `/api/posts/${id}`,
+                contentType: "application/json",
+                data: JSON.stringify(data),
+                success: function (response) {
+                    alert('메시지 변경에 성공하였습니다.');
+                    window.location.reload();
+                    window.location.href = '/detail.html?id='+response
+                }
+            });
+        }
     </script>
+
+
+    <!-- Custom styles for this template -->
+    <link href="./product.css" rel="stylesheet">
+
 </head>
 <body>
 
@@ -109,39 +163,8 @@
 </header>
 
 <main>
-    <div class="position-relative overflow-hidden p-3 p-md-5 m-md-3 text-center bg-light">
-        <div class="col-md-5 p-lg-5 mx-auto my-5">
-            <h1 class="display-4 fw-normal">나만의 Blog</h1>
-            <p></p>
-            <p class="lead fw-normal">하루하루 잊지말고 기록하다보면 </p>
-            <p class="lead fw-normal">나중에는 내 추억을 담은 단 하나의 일기장이 만들어 질거에요.</p>
-            <a class="btn btn-outline-secondary"  href="write.html">작성 하기</a>
-        </div>
-        <div class="product-device shadow-sm d-none d-md-block"></div>
-        <div class="product-device product-device-2 shadow-sm d-none d-md-block"></div>
+    <div id="detail-post">
     </div>
-
-    <div id="cards-box"class="custum-outter-box d-md-flex flex-md-equal w-100 my-md-3 ps-md-3">
-        <div class="custum-inner-box bg-dark me-md-3 pt-3 px-3 pt-md-5 px-md-5 text-center text-white overflow-hidden">
-            <div class="my-3 py-3">
-                <h2 class="display-5">Another headline</h2>
-                <p class="lead">And an even wittier subheading.</p>
-            </div>
-            <div class="bg-light shadow-sm mx-auto text"
-                 style="width: 80%; height: 300px; border-radius: 21px 21px 0 0;">
-                <p style="color:black;">And an even wittier subheading.</p>
-            </div>
-        </div>
-        <div class="custum-inner-box bg-dark me-md-3 pt-3 px-3 pt-md-5 px-md-5 text-center text-white overflow-hidden">
-            <div class="my-3 py-3">
-                <h2 class="display-5">Another headline</h2>
-                <p class="lead">And an even wittier subheading.</p>
-            </div>
-            <div class="bg-light shadow-sm mx-auto"
-                 style="width: 80%; height: 300px; border-radius: 21px 21px 0 0;"></div>
-        </div>
-    </div>
-
 </main>
 
 <footer class="container py-5">
