@@ -60,9 +60,7 @@
                     let tempHtml = `<div id="${response.id}-card"
                                          class="custum-inner-box bg-dark me-md-3 pt-3 px-3 pt-md-5 px-md-5 text-center text-white overflow-hidden">
                                         <div style="float:right;">
-                                            <img id="${response.id}-edit" class="icon-start-edit" src="images/edit.png" alt="" onclick="editPost('${response.id}')">
                                             <img id="${response.id}-delete" class="icon-delete" src="images/delete.png" alt="" onclick="deleteOne('${response.id}')">
-                                            <img id="${response.id}-submit" class="icon-end-edit" src="images/done.png" alt="" onclick="submitEdit('${response.id}')">
                                         </div>
                                         <div class="my-3 py-3">
                                             <h2 id="${response.id}-title" class="display-5">${response.title}</h2>
@@ -71,9 +69,6 @@
                                         <div class="bg-light shadow-sm mx-auto text"
                                              style="width: 80%; height: 300px; border-radius: 21px; margin-bottom: 50px">
                                             <p id="${response.id}-contents" style="color:black;">${response.contents}</p>
-                                            <div id="${response.id}-editarea" class="edit">
-                                                <p id="${response.id}-textarea" style="color:black;">$</p>
-                                            </div>
                                         </div>
                                     </div>`
                     $('#detail-post').append(tempHtml)
@@ -87,11 +82,8 @@
         // 숨길 버튼을 숨기고, 나타낼 버튼을 나타냄
         function showEdits(id) {
             $(`#${id}-delete`).show();
-            $(`#${id}-submit`).show();
-            $(`#${id}-editarea`).show();
 
             $(`#${id}-contents`).hide();
-            $(`#${id}-edit`).hide();
         }
 
         function deleteOne(id) {
@@ -103,42 +95,6 @@
                     window.location.href = '/'
                 }
             })
-        }
-
-        function editPost(id) {
-            showEdits(id);
-            let contents = $(`#${id}-contents`).text().trim();
-            $(`#${id}-textarea`).val(contents);
-        }
-
-        function submitEdit(id) {
-            // 1. 작성 대상 메모의 username과 contents 를 확인합니다.
-            let title = $(`#${id}-title`).text().trim();
-            let contents = $(`#${id}-textarea`).val().trim();
-
-            // 2. 작성한 메모가 올바른지 isValidContents 함수를 통해 확인합니다.
-            if (isValidtitle(title) == false) {
-                return;
-            }
-            if (isValidContents(contents) == false) {
-                return;
-            }
-
-            // 3. 전달할 data JSON으로 만듭니다.
-            let data = {'username': username,'title': title, 'contents': contents};
-
-            // 4. PUT /api/memos/{id} 에 data를 전달합니다.
-            $.ajax({
-                type: "PUT",
-                url: `/api/posts/${id}`,
-                contentType: "application/json",
-                data: JSON.stringify(data),
-                success: function (response) {
-                    alert('메시지 변경에 성공하였습니다.');
-                    window.location.reload();
-                    window.location.href = '/detail.html?id='+response
-                }
-            });
         }
     </script>
 
