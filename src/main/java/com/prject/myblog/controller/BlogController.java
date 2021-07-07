@@ -42,9 +42,9 @@ public class BlogController {
         return id;
     }
 
-    @PutMapping ("/{id}")
-    public Long updateBlog(@PathVariable Long id,@RequestBody BlogRequestDto requestDto){
-        blogService.update(id,requestDto);
+    @PutMapping("/{id}")
+    public Long updateBlog(@PathVariable Long id, @RequestBody BlogRequestDto requestDto) {
+        blogService.update(id, requestDto);
         return id;
     }
 }
