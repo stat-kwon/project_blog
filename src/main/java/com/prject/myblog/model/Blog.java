@@ -1,5 +1,6 @@
-package com.prject.myblog.domain;
+package com.prject.myblog.model;
 
+import com.prject.myblog.dto.BlogRequestDto;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
