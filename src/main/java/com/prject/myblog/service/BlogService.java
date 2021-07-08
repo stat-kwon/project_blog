@@ -1,8 +1,8 @@
 package com.prject.myblog.service;
 
-import com.prject.myblog.domain.Blog;
-import com.prject.myblog.domain.BlogRepository;
-import com.prject.myblog.domain.BlogRequestDto;
+import com.prject.myblog.model.Blog;
+import com.prject.myblog.repository.BlogRepository;
+import com.prject.myblog.dto.BlogRequestDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
