@@ -1,12 +1,11 @@
 package com.prject.myblog.controller;
 
-import com.prject.myblog.domain.Blog;
-import com.prject.myblog.domain.BlogRepository;
-import com.prject.myblog.domain.BlogRequestDto;
+import com.prject.myblog.model.Blog;
+import com.prject.myblog.repository.BlogRepository;
+import com.prject.myblog.dto.BlogRequestDto;
 import com.prject.myblog.service.BlogService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.context.annotation.RequestScope;
 
 import java.util.List;
 
@@ -42,9 +41,9 @@ public class BlogController {
         return id;
     }
 
-    @PutMapping ("/{id}")
-    public Long updateBlog(@PathVariable Long id,@RequestBody BlogRequestDto requestDto){
-        blogService.update(id,requestDto);
+    @PutMapping("/{id}")
+    public Long updateBlog(@PathVariable Long id, @RequestBody BlogRequestDto requestDto) {
+        blogService.update(id, requestDto);
         return id;
     }
 }
