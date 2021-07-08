@@ -1,5 +1,6 @@
 package com.prject.myblog.model;
 
+import com.prject.myblog.model.Timestamped;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -16,6 +17,14 @@ public class User extends Timestamped {
         this.username = username;
         this.password = password;
         this.email = email;
+        this.kakaoId = null;
+    }
+
+    public User(String username, String password, String email, Long kakaoId) {
+        this.username = username;
+        this.password = password;
+        this.email = email;
+        this.kakaoId = kakaoId;
     }
 
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -30,4 +39,7 @@ public class User extends Timestamped {
 
     @Column(nullable = true)
     private String email;
+
+    @Column(nullable = true)
+    private Long kakaoId;
 }

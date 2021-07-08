@@ -2,6 +2,7 @@ package com.prject.myblog.security;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
@@ -23,7 +24,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         //로그인 기능 상세 설정을 해주는 것
         http.authorizeRequests()
 
-                .antMatchers("/assets/**").permitAll()
+                .antMatchers("/assets/css/**").permitAll()
+                .antMatchers("/assets/dist/css/**").permitAll()
+                .antMatchers("/assets/dist/js/**").permitAll()
                 .antMatchers("/").permitAll()
                 .antMatchers("/user/**").permitAll()
                 .antMatchers("/h2-console/**").permitAll()
@@ -33,13 +36,20 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
                 .formLogin()
                 .loginPage("/user/login")
-                .failureUrl("/user/login/error")
+                .loginProcessingUrl("/user/login")
                 .defaultSuccessUrl("/")
                 .permitAll()
 
                 .and()
 
                 .logout()
+                .logoutUrl("/user/logout")
                 .permitAll();
+    }
+
+    @Bean
+    @Override
+    public AuthenticationManager authenticationManagerBean() throws Exception {
+        return super.authenticationManagerBean();
     }
 }
